@@ -87,11 +87,37 @@ fig1.add_scatter(x=data["Date"], y=data["AI_Usage"]*1000, mode="lines", name="AI
 fig1.add_scatter(x=forecast_df["Date"], y=forecast_df["Predicted_Sales"], mode="lines+markers", name="Forecasted Sales", line=dict(color="#006771", dash="dash"))
 st.plotly_chart(fig1, use_container_width=True)
 
-# Scatterplot: AI Usage vs Sales (Updated Colors)
-fig2 = px.scatter(data, x="AI_Usage", y="Sales", color="Region",
-                  title="Correlation: AI Usage vs Sales by Region",
-                  color_discrete_sequence=["#006771", "#FF9999", "#66B2A6"])
+# Scatterplot: AI Usage vs Sales (with Quadrants)
+fig2 = px.scatter(
+    data, x="AI_Usage", y="Sales", color="Region",
+    title="Correlation: AI Usage vs Sales by Region",
+    color_discrete_sequence=["#006771", "#FF9999", "#66B2A6"]
+)
+
+# Calculate medians for quadrant split
+x_median = data["AI_Usage"].median()
+y_median = data["Sales"].median()
+
+# Add quadrant lines
+fig2.add_shape(type="line", x0=x_median, x1=x_median,
+               y0=data["Sales"].min(), y1=data["Sales"].max(),
+               line=dict(color="white", dash="dash"))
+fig2.add_shape(type="line", x0=data["AI_Usage"].min(), x1=data["AI_Usage"].max(),
+               y0=y_median, y1=y_median,
+               line=dict(color="white", dash="dash"))
+
+# Add quadrant labels
+fig2.add_annotation(x=x_median+5, y=y_median+5000, text="High Usage / High Sales",
+                    showarrow=False, font=dict(color="white"))
+fig2.add_annotation(x=x_median-5, y=y_median+5000, text="Low Usage / High Sales",
+                    showarrow=False, font=dict(color="white"))
+fig2.add_annotation(x=x_median-5, y=y_median-5000, text="Low Usage / Low Sales",
+                    showarrow=False, font=dict(color="white"))
+fig2.add_annotation(x=x_median+5, y=y_median-5000, text="High Usage / Low Sales",
+                    showarrow=False, font=dict(color="white"))
+
 st.plotly_chart(fig2, use_container_width=True)
+
 
 # Box & Whisker by Region
 fig_box = px.box(data, x="Region", y="Sales", color="Region",
@@ -169,3 +195,4 @@ st.dataframe(forecast_df)
 # Show Data Table with Filters
 st.subheader("📋 Historical Data Table")
 st.dataframe(data.tail(50))
+
