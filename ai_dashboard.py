@@ -10,11 +10,13 @@ from sklearn.linear_model import LinearRegression
 np.random.seed(42)
 years = np.arange(2018, 2025)
 months = pd.date_range("2018-01", "2024-12", freq="M")
+regions = ["EMEA", "ASIA", "NAM"]
 
 # Simulate AI usage percentage and sales
 data = pd.DataFrame({
     "Date": months,
     "AI_Usage": np.clip(np.linspace(10, 80, len(months)) + np.random.normal(0, 5, len(months)), 5, 95),
+    "Region": np.random.choice(regions, size=len(months))
 })
 
 # Sales influenced by AI usage + seasonal effects + randomness
@@ -45,32 +47,57 @@ forecast_df = pd.DataFrame({
 })
 
 # ----------------------------
+# Synthetic KPIs
+# ----------------------------
+win_more = 15.2  # % increase in deals won
+win_rate = 48.5  # % overall win rate
+avg_cycle = 62   # days
+avg_deal_size = 87000  # USD
+ai_win_rate = 57.8  # % influenced by AI
+
+# ----------------------------
 # Streamlit App
 # ----------------------------
 st.set_page_config(page_title="AI Usage & Sales Dashboard", layout="wide")
 st.title("📊 AI Usage and Sales Impact Dashboard")
 
 # KPIs
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("Win More", f"{win_more:.1f}%")
+col2.metric("Win Rate", f"{win_rate:.1f}%")
+col3.metric("Avg Sales Cycle", f"{avg_cycle} days")
+col4.metric("Avg Deal Size", f"${avg_deal_size:,.0f}")
+col5.metric("AI Influenced Win Rate", f"{ai_win_rate:.1f}%")
+
+# Existing KPIs
+st.subheader("📌 Core AI & Sales Metrics")
 col1, col2, col3 = st.columns(3)
 col1.metric("Current AI Usage %", f"{data['AI_Usage'].iloc[-1]:.1f}%")
 col2.metric("Latest Monthly Sales", f"${data['Sales'].iloc[-1]:,.0f}")
 col3.metric("Sales Growth (MoM)", f"{data['Sales_Growth(%)'].iloc[-1]:.2f}%")
 
 # Line Chart: AI Usage vs Sales with Forecast
-fig1 = px.line(data, x="Date", y="Sales", title="AI Usage vs Sales Over Time")
-fig1.add_scatter(x=data["Date"], y=data["AI_Usage"]*1000, mode="lines", name="AI Usage (scaled)")
-fig1.add_scatter(x=forecast_df["Date"], y=forecast_df["Predicted_Sales"], mode="lines+markers", name="Forecasted Sales")
+fig1 = px.line(data, x="Date", y="Sales", title="AI Usage vs Sales Over Time", color_discrete_sequence=["#006771"])
+fig1.add_scatter(x=data["Date"], y=data["AI_Usage"]*1000, mode="lines", name="AI Usage (scaled)", line=dict(color="#999999", dash="dot"))
+fig1.add_scatter(x=forecast_df["Date"], y=forecast_df["Predicted_Sales"], mode="lines+markers", name="Forecasted Sales", line=dict(color="#006771", dash="dash"))
 st.plotly_chart(fig1, use_container_width=True)
 
 # Scatterplot: AI Usage vs Sales
-fig2 = px.scatter(data, x="AI_Usage", y="Sales",
-                  trendline="ols",
-                  title="Correlation: AI Usage vs Sales")
+fig2 = px.scatter(data, x="AI_Usage", y="Sales", color="Region",
+                  title="Correlation: AI Usage vs Sales by Region",
+                  color_discrete_sequence=["#006771", "#009688", "#004C4C"])
 st.plotly_chart(fig2, use_container_width=True)
+
+# Box & Whisker by Region
+fig_box = px.box(data, x="Region", y="Sales", color="Region",
+                 title="Sales Distribution by Region",
+                 color_discrete_sequence=["#006771", "#009688", "#004C4C"])
+st.plotly_chart(fig_box, use_container_width=True)
 
 # Sales Growth Histogram
 fig3 = px.histogram(data, x="Sales_Growth(%)", nbins=30,
-                    title="Distribution of Monthly Sales Growth (%)")
+                    title="Distribution of Monthly Sales Growth (%)",
+                    color_discrete_sequence=["#006771"])
 st.plotly_chart(fig3, use_container_width=True)
 
 # Forecast Table
