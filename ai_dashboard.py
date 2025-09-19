@@ -9,7 +9,7 @@ from sklearn.linear_model import LinearRegression
 # ----------------------------
 np.random.seed(42)
 years = np.arange(2018, 2025)
-months = pd.date_range("2018-01", "2024-12", freq="M")
+months = pd.date_range("2018-01", "2024-12", freq="ME")
 regions = ["EMEA", "ASIA", "NAM"]
 ai_agents = ["Pricing Assistant", "Deal Advisor", "Forecasting Bot", "Account Researcher", "Proposal Generator"]
 sales_reps = ["Rep A", "Rep B", "Rep C", "Rep D", "Rep E"]
@@ -42,7 +42,7 @@ model.fit(X, y)
 
 # Predict future sales for next 12 months
 future_ai = np.linspace(data["AI_Usage"].iloc[-1], 95, 12)
-future_dates = pd.date_range(data["Date"].iloc[-1] + pd.offsets.MonthBegin(1), periods=12, freq="M")
+future_dates = pd.date_range(data["Date"].iloc[-1] + pd.offsets.MonthBegin(1), periods=12, freq="ME")
 future_sales = model.predict(future_ai.reshape(-1, 1))
 
 forecast_df = pd.DataFrame({
@@ -195,4 +195,5 @@ st.dataframe(forecast_df)
 # Show Data Table with Filters
 st.subheader("📋 Historical Data Table")
 st.dataframe(data.tail(50))
+
 
