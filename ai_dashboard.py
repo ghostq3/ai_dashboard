@@ -11,12 +11,17 @@ np.random.seed(42)
 years = np.arange(2018, 2025)
 months = pd.date_range("2018-01", "2024-12", freq="M")
 regions = ["EMEA", "ASIA", "NAM"]
+ai_agents = ["Pricing Assistant", "Deal Advisor", "Forecasting Bot", "Account Researcher", "Proposal Generator"]
+sales_reps = ["Rep A", "Rep B", "Rep C", "Rep D", "Rep E"]
 
 # Simulate AI usage percentage and sales
 data = pd.DataFrame({
     "Date": months,
     "AI_Usage": np.clip(np.linspace(10, 80, len(months)) + np.random.normal(0, 5, len(months)), 5, 95),
-    "Region": np.random.choice(regions, size=len(months))
+    "Region": np.random.choice(regions, size=len(months)),
+    "AI_Agent": np.random.choice(ai_agents, size=len(months)),
+    "Sales_Rep": np.random.choice(sales_reps, size=len(months)),
+    "AI_Supported": np.random.choice(["With AI", "Without AI"], size=len(months), p=[0.7, 0.3])
 })
 
 # Sales influenced by AI usage + seasonal effects + randomness
@@ -94,53 +99,68 @@ fig_box = px.box(data, x="Region", y="Sales", color="Region",
                  color_discrete_sequence=["#006771", "#009688", "#004C4C"])
 st.plotly_chart(fig_box, use_container_width=True)
 
-# ----------------------------
-# Synthetic Agent Assignment
-# ----------------------------
-agents = ["Agent A", "Agent B", "Agent C", "Agent D", "Agent E"]
-data["Agent"] = np.random.choice(agents, size=len(data))
+# Sales Growth Histogram
+fig3 = px.histogram(data, x="Sales_Growth(%)", nbins=30,
+                    title="Distribution of Monthly Sales Growth (%)",
+                    color_discrete_sequence=["#006771"])
+st.plotly_chart(fig3, use_container_width=True)
 
-# Aggregate agent performance
-agent_perf = data.groupby("Agent").agg(
+# ----------------------------
+# AI Agent Analysis
+# ----------------------------
+st.header("🤖 AI Agent Performance Analysis")
+
+agent_perf = data.groupby("AI_Agent").agg(
     Total_Sales=("Sales", "sum"),
     Avg_Deal_Size=("Sales", "mean"),
     Deals_Closed=("Sales", "count"),
     Avg_AI_Usage=("AI_Usage", "mean")
 ).reset_index()
 
-# ----------------------------
-# Agent Analysis Section
-# ----------------------------
-st.header("🤝 Agent Performance Analysis")
-
-# Top agents by sales
+# Bar chart: Top AI Agents by Total Sales
 fig_agents = px.bar(
     agent_perf.sort_values("Total_Sales", ascending=False),
-    x="Agent", y="Total_Sales",
+    x="AI_Agent", y="Total_Sales",
     text_auto=True,
-    color="Agent",
-    title="Top Agents by Total Sales",
+    color="AI_Agent",
+    title="Top AI Agents by Total Sales Impact",
     color_discrete_sequence=["#006771", "#009688", "#004C4C", "#33A6A6", "#80CBC4"]
 )
 st.plotly_chart(fig_agents, use_container_width=True)
 
-# Box plot: sales distribution by Agent
+# Box plot: Sales distribution per AI Agent
 fig_agent_box = px.box(
-    data, x="Agent", y="Sales", color="Agent",
-    title="Sales Distribution per Agent",
+    data, x="AI_Agent", y="Sales", color="AI_Agent",
+    title="Sales Distribution per AI Agent",
     color_discrete_sequence=["#006771", "#009688", "#004C4C", "#33A6A6", "#80CBC4"]
 )
 st.plotly_chart(fig_agent_box, use_container_width=True)
 
 # Agent performance table
-st.subheader("📋 Agent Performance Metrics")
+st.subheader("📋 AI Agent Performance Metrics")
 st.dataframe(agent_perf)
 
-# Sales Growth Histogram
-fig3 = px.histogram(data, x="Sales_Growth(%)", nbins=30,
-                    title="Distribution of Monthly Sales Growth (%)",
-                    color_discrete_sequence=["#006771"])
-st.plotly_chart(fig3, use_container_width=True)
+# ----------------------------
+# Sales Rep With vs Without AI
+# ----------------------------
+st.header("👥 Sales Rep Performance: With vs Without AI Support")
+
+rep_perf = data.groupby(["Sales_Rep", "AI_Supported"]).agg(
+    Total_Sales=("Sales", "sum"),
+    Avg_Deal_Size=("Sales", "mean"),
+    Deals_Closed=("Sales", "count")
+).reset_index()
+
+fig_rep = px.bar(
+    rep_perf, x="Sales_Rep", y="Total_Sales", color="AI_Supported",
+    barmode="group", text_auto=True,
+    title="Sales Rep Performance Comparison (With vs Without AI)",
+    color_discrete_sequence=["#006771", "#999999"]
+)
+st.plotly_chart(fig_rep, use_container_width=True)
+
+st.subheader("📋 Sales Rep Metrics by AI Support")
+st.dataframe(rep_perf)
 
 # Forecast Table
 st.subheader("🔮 Sales Forecast Based on AI Usage")
@@ -149,4 +169,3 @@ st.dataframe(forecast_df)
 # Show Data Table with Filters
 st.subheader("📋 Historical Data Table")
 st.dataframe(data.tail(50))
-
