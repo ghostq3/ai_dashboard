@@ -106,15 +106,35 @@ fig2.add_shape(type="line", x0=data["AI_Usage"].min(), x1=data["AI_Usage"].max()
                y0=y_median, y1=y_median,
                line=dict(color="white", dash="dash"))
 
-# Add quadrant labels
-fig2.add_annotation(x=x_median+5, y=y_median+5000, text="High Usage / High Sales",
-                    showarrow=False, font=dict(color="white"))
-fig2.add_annotation(x=x_median-5, y=y_median+5000, text="Low Usage / High Sales",
-                    showarrow=False, font=dict(color="white"))
-fig2.add_annotation(x=x_median-5, y=y_median-5000, text="Low Usage / Low Sales",
-                    showarrow=False, font=dict(color="white"))
-fig2.add_annotation(x=x_median+5, y=y_median-5000, text="High Usage / Low Sales",
-                    showarrow=False, font=dict(color="white"))
+# Add quadrant labels (shifted to quadrant centers)
+fig2.add_annotation(
+    x=data["AI_Usage"].min() + (x_median - data["AI_Usage"].min()) / 2,
+    y=y_median + (data["Sales"].max() - y_median) / 2,
+    text="Low Usage / High Sales",
+    showarrow=False, font=dict(color="white")
+)
+
+fig2.add_annotation(
+    x=x_median + (data["AI_Usage"].max() - x_median) / 2,
+    y=y_median + (data["Sales"].max() - y_median) / 2,
+    text="High Usage / High Sales",
+    showarrow=False, font=dict(color="white")
+)
+
+fig2.add_annotation(
+    x=data["AI_Usage"].min() + (x_median - data["AI_Usage"].min()) / 2,
+    y=data["Sales"].min() + (y_median - data["Sales"].min()) / 2,
+    text="Low Usage / Low Sales",
+    showarrow=False, font=dict(color="white")
+)
+
+fig2.add_annotation(
+    x=x_median + (data["AI_Usage"].max() - x_median) / 2,
+    y=data["Sales"].min() + (y_median - data["Sales"].min()) / 2,
+    text="High Usage / Low Sales",
+    showarrow=False, font=dict(color="white")
+)
+
 
 st.plotly_chart(fig2, use_container_width=True)
 
@@ -195,5 +215,6 @@ st.dataframe(forecast_df)
 # Show Data Table with Filters
 st.subheader("📋 Historical Data Table")
 st.dataframe(data.tail(50))
+
 
 
