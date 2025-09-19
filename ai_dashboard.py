@@ -87,16 +87,16 @@ fig1.add_scatter(x=data["Date"], y=data["AI_Usage"]*1000, mode="lines", name="AI
 fig1.add_scatter(x=forecast_df["Date"], y=forecast_df["Predicted_Sales"], mode="lines+markers", name="Forecasted Sales", line=dict(color="#006771", dash="dash"))
 st.plotly_chart(fig1, use_container_width=True)
 
-# Scatterplot: AI Usage vs Sales
+# Scatterplot: AI Usage vs Sales (Updated Colors)
 fig2 = px.scatter(data, x="AI_Usage", y="Sales", color="Region",
                   title="Correlation: AI Usage vs Sales by Region",
-                  color_discrete_sequence=["#006771", "#009688", "#004C4C"])
+                  color_discrete_sequence=["#006771", "#FF5722", "#FFC107"])
 st.plotly_chart(fig2, use_container_width=True)
 
 # Box & Whisker by Region
 fig_box = px.box(data, x="Region", y="Sales", color="Region",
                  title="Sales Distribution by Region",
-                 color_discrete_sequence=["#006771", "#009688", "#004C4C"])
+                 color_discrete_sequence=["#006771", "#FF5722", "#FFC107"])
 st.plotly_chart(fig_box, use_container_width=True)
 
 # Sales Growth Histogram
@@ -124,7 +124,7 @@ fig_agents = px.bar(
     text_auto=True,
     color="AI_Agent",
     title="Top AI Agents by Total Sales Impact",
-    color_discrete_sequence=["#006771", "#009688", "#004C4C", "#33A6A6", "#80CBC4"]
+    color_discrete_sequence=["#006771", "#FF5722", "#FFC107", "#33A6A6", "#80CBC4"]
 )
 st.plotly_chart(fig_agents, use_container_width=True)
 
@@ -132,7 +132,7 @@ st.plotly_chart(fig_agents, use_container_width=True)
 fig_agent_box = px.box(
     data, x="AI_Agent", y="Sales", color="AI_Agent",
     title="Sales Distribution per AI Agent",
-    color_discrete_sequence=["#006771", "#009688", "#004C4C", "#33A6A6", "#80CBC4"]
+    color_discrete_sequence=["#006771", "#FF5722", "#FFC107", "#33A6A6", "#80CBC4"]
 )
 st.plotly_chart(fig_agent_box, use_container_width=True)
 
@@ -155,7 +155,7 @@ fig_rep = px.bar(
     rep_perf, x="Sales_Rep", y="Total_Sales", color="AI_Supported",
     barmode="group", text_auto=True,
     title="Sales Rep Performance Comparison (With vs Without AI)",
-    color_discrete_sequence=["#006771", "#999999"]
+    color_discrete_sequence=["#006771", "#FF5722"]
 )
 st.plotly_chart(fig_rep, use_container_width=True)
 
