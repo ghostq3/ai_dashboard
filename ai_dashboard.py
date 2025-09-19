@@ -94,6 +94,48 @@ fig_box = px.box(data, x="Region", y="Sales", color="Region",
                  color_discrete_sequence=["#006771", "#009688", "#004C4C"])
 st.plotly_chart(fig_box, use_container_width=True)
 
+# ----------------------------
+# Synthetic Agent Assignment
+# ----------------------------
+agents = ["Agent A", "Agent B", "Agent C", "Agent D", "Agent E"]
+data["Agent"] = np.random.choice(agents, size=len(data))
+
+# Aggregate agent performance
+agent_perf = data.groupby("Agent").agg(
+    Total_Sales=("Sales", "sum"),
+    Avg_Deal_Size=("Sales", "mean"),
+    Deals_Closed=("Sales", "count"),
+    Avg_AI_Usage=("AI_Usage", "mean")
+).reset_index()
+
+# ----------------------------
+# Agent Analysis Section
+# ----------------------------
+st.header("🤝 Agent Performance Analysis")
+
+# Top agents by sales
+fig_agents = px.bar(
+    agent_perf.sort_values("Total_Sales", ascending=False),
+    x="Agent", y="Total_Sales",
+    text_auto=True,
+    color="Agent",
+    title="Top Agents by Total Sales",
+    color_discrete_sequence=["#006771", "#009688", "#004C4C", "#33A6A6", "#80CBC4"]
+)
+st.plotly_chart(fig_agents, use_container_width=True)
+
+# Box plot: sales distribution by Agent
+fig_agent_box = px.box(
+    data, x="Agent", y="Sales", color="Agent",
+    title="Sales Distribution per Agent",
+    color_discrete_sequence=["#006771", "#009688", "#004C4C", "#33A6A6", "#80CBC4"]
+)
+st.plotly_chart(fig_agent_box, use_container_width=True)
+
+# Agent performance table
+st.subheader("📋 Agent Performance Metrics")
+st.dataframe(agent_perf)
+
 # Sales Growth Histogram
 fig3 = px.histogram(data, x="Sales_Growth(%)", nbins=30,
                     title="Distribution of Monthly Sales Growth (%)",
@@ -107,3 +149,4 @@ st.dataframe(forecast_df)
 # Show Data Table with Filters
 st.subheader("📋 Historical Data Table")
 st.dataframe(data.tail(50))
+
